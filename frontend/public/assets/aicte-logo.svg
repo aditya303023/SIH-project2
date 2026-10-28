@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="48" height="48">
+  <defs>
+    <linearGradient id="aicteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF9933" />
+      <stop offset="50%" stop-color="#FFFFFF" />
+      <stop offset="100%" stop-color="#138808" />
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#000080" stop-opacity="0.9" />
+      <stop offset="100%" stop-color="#0b1b3d" stop-opacity="1" />
+    </radialGradient>
+  </defs>
+  <circle cx="60" cy="60" r="56" fill="url(#sunGlow)" stroke="#FF9933" stroke-width="2.5"/>
+  <circle cx="60" cy="60" r="46" fill="none" stroke="#FFFFFF" stroke-width="1.2" stroke-dasharray="3 3"/>
+  <!-- Ashoka Chakra 24 spokes stylized -->
+  <circle cx="60" cy="60" r="14" fill="#0b1b3d" stroke="#60A5FA" stroke-width="2"/>
+  <circle cx="60" cy="60" r="4" fill="#60A5FA"/>
+  <g stroke="#93C5FD" stroke-width="1.5">
+    <line x1="60" y1="46" x2="60" y2="74"/>
+    <line x1="46" y1="60" x2="74" y2="60"/>
+    <line x1="50" y1="50" x2="70" y2="70"/>
+    <line x1="50" y1="70" x2="70" y2="50"/>
+  </g>
+  <!-- Torch / Flame motif of AICTE -->
+  <path d="M54 42 C54 34, 60 26, 60 22 C60 26, 66 34, 66 42 Z" fill="#F59E0B" opacity="0.95"/>
+  <path d="M57 40 C57 36, 60 30, 60 27 C60 30, 63 36, 63 40 Z" fill="#FDE047"/>
+  <!-- AICTE Text -->
+  <text x="60" y="94" font-family="'Inter', sans-serif" font-size="11" font-weight="800" fill="#F8FAFC" text-anchor="middle" letter-spacing="2">AICTE</text>
+  <text x="60" y="104" font-family="'Inter', sans-serif" font-size="6.5" font-weight="600" fill="#94A3B8" text-anchor="middle">GOVT OF INDIA</text>
+</svg>

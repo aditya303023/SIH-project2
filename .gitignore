@@ -1,0 +1,11 @@
+# Compiled Java class files
+bin/
+target/
+*.class
+
+# macOS system files
+.DS_Store
+
+# Temporary files
+*.log
+scratch/

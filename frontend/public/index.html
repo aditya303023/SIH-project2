@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NIVARANFLOW | AICTE Integrated Complaint Tracking Dashboard (SIH 2026)</title>
+  
+  <!-- Modern Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- ================= App Header ================= -->
+  <header class="app-header">
+    <div class="header-container">
+      <div class="brand-section">
+        <img src="assets/aicte-logo.svg" alt="AICTE Emblem" width="40" height="40">
+        <div class="brand-titles">
+          <div class="brand-name">NIVARAN<span>FLOW</span></div>
+          <div class="brand-tagline">
+            Integrated AICTE Complaint Tracking System
+            <span class="sih-badge">
+              <img src="assets/sih-badge.svg" width="14" height="14" alt="SIH">
+              SIH 2026 • SIH26264
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Universal Search -->
+      <div class="header-search">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="globalSearchInput" placeholder="Search by Institution, AICTE Permanent ID (e.g. 1-1092837461) or Case ID...">
+        <span class="search-shortcut">/</span>
+      </div>
+
+      <div class="header-actions">
+        <button class="btn btn-secondary" id="btnViewAudit">
+          <span>📜</span> Audit Trail
+        </button>
+        <button class="btn btn-primary" id="btnNewCase">
+          <span>➕</span> Record New Case
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ================= Main Body ================= -->
+  <main class="main-content">
+
+    <!-- Overlap Radar Hero Banner (Slide 1 & 2 Focus: Institution A Overlap) -->
+    <section class="overlap-hero-banner" id="heroAlertBanner" style="display: none;">
+      <div class="alert-info-group">
+        <div class="alert-radar-icon">⚠️</div>
+        <div class="alert-headline-box">
+          <h3 id="alertHeadline">
+            Possible Cross-Bureau Overlap Detected
+            <span class="alert-badge-pulse">ACTION REQUIRED</span>
+          </h3>
+          <p id="alertDetails">Institution has active concurrent cases in multiple AICTE Bureaus. A staff member must review details before parallel action.</p>
+          <div class="alert-cases-tag" id="heroCaseTags"></div>
+        </div>
+      </div>
+      <div class="alert-actions-group">
+        <button class="btn btn-warning" id="btnReviewHeroAlert">
+          <span>⚖️</span> Review Overlap Details
+        </button>
+      </div>
+    </section>
+
+    <!-- Metrics Overview Grid -->
+    <section class="metrics-grid">
+      <div class="metric-card">
+        <div class="metric-meta">
+          <span class="metric-label">Total Complaint Cases</span>
+          <span class="metric-value" id="statTotalCases">0</span>
+          <span class="metric-hint">Across AICTE Bureaus</span>
+        </div>
+        <div class="metric-icon-wrap icon-blue">📋</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-meta">
+          <span class="metric-label">Active / In-Progress</span>
+          <span class="metric-value" id="statActiveCases">0</span>
+          <span class="metric-hint">Pending office resolution</span>
+        </div>
+        <div class="metric-icon-wrap icon-emerald">⚡</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-meta">
+          <span class="metric-label">Pending Overlap Alerts</span>
+          <span class="metric-value" id="statPendingOverlaps">0</span>
+          <span class="metric-hint">Requires human decision</span>
+        </div>
+        <div class="metric-icon-wrap icon-amber">⚠️</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-meta">
+          <span class="metric-label">Linked Inter-Bureau Cases</span>
+          <span class="metric-value" id="statLinkedCases">0</span>
+          <span class="metric-hint">Synchronized proceedings</span>
+        </div>
+        <div class="metric-icon-wrap icon-purple">🔗</div>
+      </div>
+    </section>
+
+    <!-- Filter & Options Toolbar -->
+    <section class="toolbar-panel">
+      <div class="filter-chips-group">
+        <span style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-right:0.3rem;">Bureau:</span>
+        <button class="filter-chip active" data-bureau="ALL">All Bureaus</button>
+        <button class="filter-chip filter-chip-pgrc" data-bureau="PGRC">PGRC</button>
+        <button class="filter-chip filter-chip-regulation" data-bureau="Regulation Bureau">Regulation</button>
+        <button class="filter-chip filter-chip-approval" data-bureau="Approval Bureau">Approval</button>
+        <button class="filter-chip filter-chip-scsc" data-bureau="SCSC">SCSC</button>
+        <button class="filter-chip filter-chip-legal" data-bureau="Legal Cell">Legal Cell</button>
+      </div>
+
+      <div class="toolbar-right-actions">
+        <select class="select-custom" id="filterStatusSelect">
+          <option value="ALL">All Statuses</option>
+          <option value="Active">Active</option>
+          <option value="Under Review">Under Review</option>
+          <option value="Pending Review">Pending Review</option>
+          <option value="Joint Bureau Review">Joint Bureau Review</option>
+        </select>
+
+        <select class="select-custom" id="filterPrioritySelect">
+          <option value="ALL">All Priorities</option>
+          <option value="Urgent">Urgent</option>
+          <option value="High">High</option>
+          <option value="Medium">Medium</option>
+          <option value="Low">Low</option>
+        </select>
+      </div>
+    </section>
+
+    <!-- Main Content Grid -->
+    <div class="content-grid">
+      <!-- Left: Cases Master Table -->
+      <section class="panel-card">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>🏛️</span> AICTE Integrated Case Dossier
+            <span class="panel-badge">One Institution View</span>
+          </div>
+          <span style="font-size:0.75rem; color:var(--text-muted);">
+            Team: Disaster Decoded • AICTE AP Handbook §7.10
+          </span>
+        </div>
+        <div class="cases-table-wrap">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th>Case ID</th>
+                <th>Institution & AICTE ID</th>
+                <th>Bureau & Type</th>
+                <th>Status</th>
+                <th>Priority</th>
+                <th>Owner & Next Step</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="casesTableBody">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Right: Overlap Alerts & Cross-Bureau Conflict Feed -->
+      <section class="panel-card">
+        <div class="panel-header">
+          <div class="panel-title">
+            <span>⚡</span> Cross-Bureau Overlaps
+            <span class="panel-badge">Smart Automation</span>
+          </div>
+        </div>
+        <div class="alerts-feed-list" id="alertsFeedList">
+          <!-- Dynamically populated -->
+        </div>
+      </section>
+    </div>
+
+  </main>
+
+  <!-- ================= Modal 1: Overlap Review & Human Linking (Slide 3) ================= -->
+  <div class="modal-backdrop" id="reviewModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3 id="reviewModalInstTitle">Overlap Review & Case Linking</h3>
+          <p id="reviewModalInstId">AICTE Permanent ID: 1-1092837461</p>
+        </div>
+        <button class="modal-close-btn" data-close-modal>✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:8px; padding:0.85rem 1rem; font-size:0.83rem; color:#FEF3C7;">
+          <div style="font-weight:700; margin-bottom:0.2rem;">⚠️ System Detected Potential Conflict</div>
+          <p id="reviewAlertSummary"></p>
+        </div>
+
+        <h4 style="font-size:0.9rem; font-weight:700; text-transform:uppercase; color:var(--text-muted); letter-spacing:0.5px;">Side-by-Side Case Comparison</h4>
+        
+        <!-- Side by Side Cases Comparison -->
+        <div class="review-comparison-grid" id="reviewComparisonContainer">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Human Decision Form (Only shown if pending) -->
+        <div id="reviewDecisionFormSection">
+          <div class="decision-action-box">
+            <h4 style="font-size:0.95rem; font-weight:700; color:#FFFFFF; display:flex; align-items:center; gap:0.5rem;">
+              <span>⚖️</span> Authorized Official Decision
+              <span style="font-size:0.75rem; font-weight:500; color:var(--text-muted);">(No automatic linking: human decision confirmed)</span>
+            </h4>
+
+            <div class="decision-options">
+              <div class="decision-radio-card selected-link" id="optLinkCases">
+                <div style="font-weight:700; font-size:0.9rem; color:var(--emerald);">🔗 Link Related Cases</div>
+                <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem;">
+                  Consolidate proceedings into a single synchronized bureau docket with a designated lead owner.
+                </div>
+              </div>
+
+              <div class="decision-radio-card" id="optSeparateCases">
+                <div style="font-weight:700; font-size:0.9rem; color:var(--info);">🛡️ Keep Separate</div>
+                <div style="font-size:0.75rem; color:var(--text-secondary); margin-top:0.25rem;">
+                  Cases are distinct (e.g. legal sub judice vs internal routine query); maintain separate workflows.
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Reviewing Official Name & Designation</label>
+              <input type="text" class="form-control" id="decisionOfficialName" placeholder="e.g. Dr. Alok Kumar (Advisor-I, AICTE HQ)">
+            </div>
+
+            <div class="form-group">
+              <label>Decision Justification / Reason (Why link or keep separate?)</label>
+              <textarea class="form-control" id="decisionJustification" rows="2" placeholder="Explain the rationale for linking or keeping separate..."></textarea>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+              <div class="form-group">
+                <label>Designated Lead Bureau</label>
+                <input type="text" class="form-control" id="decisionLeadBureau" placeholder="e.g. Regulation Bureau">
+              </div>
+              <div class="form-group">
+                <label>Designated Lead Case Owner</label>
+                <input type="text" class="form-control" id="decisionLeadOwner" placeholder="e.g. Er. Amit Verma (Deputy Director)">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Agreed Joint Next Step & Action Target</label>
+              <input type="text" class="form-control" id="decisionAgreedNext" placeholder="e.g. Schedule joint hearing on 2026-11-20 with both bureaus">
+            </div>
+          </div>
+        </div>
+
+        <!-- Recorded Decision Display (Shown if already decided) -->
+        <div id="existingDecisionBox" style="display:none; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:10px; padding:1.25rem;">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+            <span id="existingDecisionType"></span>
+            <span style="font-size:0.75rem; color:var(--text-muted);" id="existingDecisionOfficial"></span>
+          </div>
+          <div style="margin-bottom:0.5rem;">
+            <strong style="font-size:0.78rem; color:var(--text-muted);">RATIONALE / WHY:</strong>
+            <p style="font-size:0.85rem; color:var(--text-primary); margin-top:0.2rem;" id="existingDecisionWhy"></p>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:0.75rem; font-size:0.8rem;">
+            <div>
+              <span style="color:var(--text-muted);">Lead Owner:</span>
+              <strong id="existingDecisionOwner"></strong>
+            </div>
+            <div>
+              <span style="color:var(--text-muted);">Next Step:</span>
+              <strong id="existingDecisionNext"></strong>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal>Cancel</button>
+        <button class="btn btn-primary" id="btnSubmitDecision">Save Official Decision</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Modal 2: Record New Case (Slide 3 Step 1) ================= -->
+  <div class="modal-backdrop" id="newCaseModal">
+    <div class="modal-container" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>Record New Complaint Case</h3>
+          <p>Step 1: Enter institution ID, case ID, complaint type, office, and current status</p>
+        </div>
+        <button class="modal-close-btn" data-close-modal>✕</button>
+      </div>
+
+      <form id="newCaseForm">
+        <div class="modal-body">
+          <div id="newCaseOverlapWarning" style="display:none; background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.4); border-radius:8px; padding:0.75rem; font-size:0.8rem; color:#FDE68A;">
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label>AICTE Permanent ID *</label>
+              <input type="text" class="form-control" id="inputAicteId" placeholder="e.g. 1-1092837461" required>
+            </div>
+            <div class="form-group">
+              <label>AICTE Bureau / Cell *</label>
+              <select class="form-control" id="inputBureau" required>
+                <option value="PGRC">PGRC (Public Grievance Redressal Cell)</option>
+                <option value="Regulation Bureau">Regulation Bureau</option>
+                <option value="Approval Bureau">Approval Bureau</option>
+                <option value="SCSC">SCSC (Standing Complaint Scrutiny)</option>
+                <option value="Legal Cell">Legal Cell</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Institution Name *</label>
+            <input type="text" class="form-control" id="inputInstitutionName" placeholder="e.g. Apex Institute of Engineering & Technology" required>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 2fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label>Complaint Type / Category *</label>
+              <input type="text" class="form-control" id="inputComplaintType" placeholder="e.g. Faculty Salary Non-Disbursement, Fee Overcharge" required>
+            </div>
+            <div class="form-group">
+              <label>Priority</label>
+              <select class="form-control" id="inputPriority">
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Urgent">Urgent</option>
+                <option value="Low">Low</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label>Complainant Category</label>
+              <select class="form-control" id="inputComplainantType">
+                <option value="Faculty">Faculty / Teacher</option>
+                <option value="Student">Student / Scholar</option>
+                <option value="Parent">Parent / Guardian</option>
+                <option value="Regional Office">AICTE Regional Office</option>
+                <option value="Whistleblower">Anonymous Whistleblower</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Assigned Case Owner</label>
+              <input type="text" class="form-control" id="inputCaseOwner" placeholder="e.g. Dr. Sunita Rao (Grievance Officer)">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Immediate Next Step</label>
+            <input type="text" class="form-control" id="inputNextStep" placeholder="e.g. Verify representation against statutory bank records">
+          </div>
+
+          <div class="form-group">
+            <label>Detailed Allegation & Description</label>
+            <textarea class="form-control" id="inputDescription" rows="3" placeholder="Provide factual context, grievance specifics or audit notes..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-close-modal>Cancel</button>
+          <button type="submit" class="btn btn-primary">Save & Register Case</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= Modal 3: Case Details & Timeline ================= -->
+  <div class="modal-backdrop" id="caseDetailModal">
+    <div class="modal-container" style="max-width: 780px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>Case File: <span id="detailCaseId"></span></h3>
+          <p id="detailInstitution"></p>
+        </div>
+        <button class="modal-close-btn" data-close-modal>✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div style="display:flex; gap:0.5rem; align-items:center;">
+          <span id="detailBureau"></span>
+          <span id="detailStatus"></span>
+          <span id="detailPriority"></span>
+        </div>
+
+        <div id="detailLinkedCases" style="display:none; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); border-radius:6px; padding:0.6rem 0.85rem; font-size:0.8rem; color:#6EE7B7;">
+          🔗 <strong>Linked Cross-Bureau Proceedings:</strong> <span id="detailLinkedCasesText"></span>
+        </div>
+
+        <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-subtle); border-radius:8px; padding:1rem; display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; font-size:0.8rem;">
+          <div><span style="color:var(--text-muted);">Current Owner:</span> <strong id="detailOwner"></strong></div>
+          <div><span style="color:var(--text-muted);">Filed Date:</span> <span id="detailFiled"></span></div>
+          <div><span style="color:var(--text-muted);">Target Deadline:</span> <span id="detailDeadline" style="color:#FBBF24;"></span></div>
+          <div><span style="color:var(--text-muted);">Next Action:</span> <strong id="detailNextStep"></strong></div>
+        </div>
+
+        <div class="form-group">
+          <label>Complaint Specifics & Grievance Summary</label>
+          <p id="detailDescription" style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5; background:rgba(0,0,0,0.2); padding:0.85rem; border-radius:6px;"></p>
+        </div>
+
+        <div>
+          <h4 style="font-size:0.88rem; font-weight:700; color:#FFFFFF; margin-bottom:0.75rem;">Action History & Procedural Timeline</h4>
+          <div class="timeline" id="detailTimeline"></div>
+        </div>
+
+        <!-- Add Action Step -->
+        <form id="newActionForm" style="background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:8px; padding:1rem;">
+          <h5 style="font-size:0.8rem; font-weight:700; color:var(--text-primary); margin-bottom:0.5rem;">Log Follow-up Action / Directive</h5>
+          <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:0.5rem; margin-bottom:0.5rem;">
+            <input type="text" class="form-control" id="newActionTaken" placeholder="Action Taken (e.g. Scrutiny hearing conducted)" required>
+            <input type="text" class="form-control" id="newActionPerformedBy" placeholder="Official Name" required>
+            <select class="form-control" id="newActionBureau">
+              <option value="PGRC">PGRC</option>
+              <option value="Regulation Bureau">Regulation</option>
+              <option value="Approval Bureau">Approval</option>
+              <option value="SCSC">SCSC</option>
+              <option value="Legal Cell">Legal</option>
+            </select>
+          </div>
+          <div style="display:flex; gap:0.5rem;">
+            <input type="text" class="form-control" id="newActionRemarks" placeholder="Remarks & outcome notes..." style="flex:1;">
+            <button type="submit" class="btn btn-primary" style="padding:0.45rem 0.85rem; font-size:0.78rem;">Add Action</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Modal 4: One Institution 360° Profile (Slide 1 & 2) ================= -->
+  <div class="modal-backdrop" id="instProfileModal">
+    <div class="modal-container" style="max-width: 860px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3 id="instProfileName">Apex Institute of Technology</h3>
+          <p id="instProfileId">AICTE Permanent ID: 1-1092837461</p>
+        </div>
+        <button class="modal-close-btn" data-close-modal>✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:0.75rem; background:rgba(255,255,255,0.03); border:1px solid var(--border-subtle); border-radius:10px; padding:1rem;">
+          <div><span style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">Location</span><div style="font-size:0.85rem; font-weight:600;" id="instProfileState"></div></div>
+          <div><span style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">Category</span><div style="font-size:0.85rem; font-weight:600;" id="instProfileType"></div></div>
+          <div><span style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">AICTE Status</span><div style="font-size:0.85rem; font-weight:600; color:var(--emerald);" id="instProfileApproval"></div></div>
+          <div><span style="font-size:0.7rem; color:var(--text-muted); text-transform:uppercase;">Nodal Contact</span><div style="font-size:0.85rem; font-weight:600;" id="instProfileEmail"></div></div>
+        </div>
+
+        <div style="display:flex; gap:1rem; margin-top:0.5rem; font-size:0.85rem;">
+          <div>Total Cases: <strong id="instTotalCasesBadge" style="color:var(--text-primary);">0</strong></div>
+          <div>Active Inquiries: <strong id="instActiveCasesBadge" style="color:#FBBF24;">0</strong></div>
+          <div>Involved Bureaus: <strong id="instBureausBadge" style="color:var(--info);">None</strong></div>
+        </div>
+
+        <h4 style="font-size:0.95rem; font-weight:700; color:#FFFFFF; margin-top:1rem;">All Associated Cases Across AICTE Bureaus</h4>
+        <div id="instProfileCasesList" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal>Close Profile</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Modal 5: Audit & Compliance Trail (Slide 4) ================= -->
+  <div class="modal-backdrop" id="auditModal">
+    <div class="modal-container" style="max-width: 820px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>AICTE Inter-Bureau Compliance & Audit Trail</h3>
+          <p>Transparent review history for authorized staff and oversight committees</p>
+        </div>
+        <button class="modal-close-btn" data-close-modal>✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div id="auditLogsList" style="display:flex; flex-direction:column; gap:0.75rem;"></div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-close-modal>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- Scripts -->
+  <script src="js/api.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

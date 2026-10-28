@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="40" height="40">
+  <defs>
+    <linearGradient id="bulbGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF9933" />
+      <stop offset="100%" stop-color="#10B981" />
+    </linearGradient>
+  </defs>
+  <circle cx="50" cy="50" r="46" fill="#0F172A" stroke="url(#bulbGrad)" stroke-width="3"/>
+  <!-- Lightbulb with circuits for SIH -->
+  <path d="M50 20 C38 20, 32 30, 32 42 C32 50, 38 56, 42 62 L42 68 L58 68 L58 62 C62 56, 68 50, 68 42 C68 30, 62 20, 50 20 Z" fill="none" stroke="#FBBF24" stroke-width="3" stroke-linecap="round"/>
+  <line x1="44" y1="72" x2="56" y2="72" stroke="#FBBF24" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="46" y1="76" x2="54" y2="76" stroke="#FBBF24" stroke-width="2.5" stroke-linecap="round"/>
+  <circle cx="50" cy="42" r="5" fill="#38BDF8"/>
+  <path d="M50 32 L50 37 M43 42 L38 42 M57 42 L62 42" stroke="#38BDF8" stroke-width="2" stroke-linecap="round"/>
+</svg>
