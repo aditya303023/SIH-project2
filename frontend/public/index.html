@@ -45,6 +45,33 @@
         <button class="btn btn-primary" id="btnNewCase">
           <span>➕</span> Record New Case
         </button>
+
+        <!-- User Profile Widget & Role Switcher -->
+        <div class="user-profile-widget">
+          <button class="user-badge-btn" id="btnUserMenu" title="Click to view profile or switch role">
+            <div class="user-avatar" id="navUserAvatar">👨‍💼</div>
+            <div class="user-info-text">
+              <span class="user-name-title" id="navUserName">Dr. Alok Kumar</span>
+              <span class="user-role-label" id="navUserRole">AICTE Headquarters</span>
+            </div>
+            <span style="font-size:0.65rem; color:var(--text-muted); margin-left:2px;">▼</span>
+          </button>
+          
+          <div class="user-dropdown-menu" id="userDropdownMenu">
+            <div class="dropdown-header-card">
+              <div style="font-weight:700; font-size:0.88rem; color:#FFFFFF;" id="dropUserName">Dr. Alok Kumar</div>
+              <div style="font-size:0.75rem; color:var(--text-secondary);" id="dropUserEmail">admin@aicte-india.org</div>
+              <div style="font-size:0.72rem; color:var(--text-muted); margin-top:0.25rem;" id="dropUserDesignation">Advisor-I & Chief Grievance Appellate</div>
+              <span class="dropdown-clearance-pill" id="dropUserClearance">Level 1 (All Bureaus)</span>
+            </div>
+            <button class="dropdown-action-btn" id="btnSwitchAccount">
+              <span>🔄</span> Switch Role / Login Portal
+            </button>
+            <button class="dropdown-action-btn logout" id="btnLogout">
+              <span>🚪</span> Sign Out
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </header>
@@ -506,6 +533,107 @@
 
       <div class="modal-footer">
         <button class="btn btn-secondary" data-close-modal>Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= Modal 6: Login Dashboard & Role Gateway ================= -->
+  <div class="modal-backdrop" id="loginModal">
+    <div class="modal-container" style="max-width: 820px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <h3>🏛️ AICTE Authorized Staff Login Gateway</h3>
+          <p>Protected Access Portal • NivaranFlow Inter-Bureau Tracking (SIH 2026)</p>
+        </div>
+        <button class="modal-close-btn" data-close-modal>✕</button>
+      </div>
+
+      <div class="modal-body">
+        <div style="background:rgba(79,70,229,0.1); border:1px solid rgba(79,70,229,0.25); border-radius:10px; padding:0.85rem 1rem; font-size:0.82rem; color:#C7D2FE;">
+          <strong>⚡ Quick Evaluator / Judge Login:</strong> Click any of the authorized AICTE staff roles below to instantly log in and experience their customized bureau clearance and workflow.
+        </div>
+
+        <!-- 1-Click Role Switcher Grid -->
+        <div class="role-picker-grid" id="rolePickerGrid">
+          <div class="role-card-select active" data-email="admin@aicte-india.org" data-role="AICTE_HQ_EXECUTIVE">
+            <div class="role-card-icon">👨‍💼</div>
+            <div class="role-card-details">
+              <h5>Dr. Alok Kumar</h5>
+              <p>Advisor-I, AICTE HQ</p>
+              <div class="role-clearance-mini">Clearance: Level 1 (All Bureaus)</div>
+            </div>
+          </div>
+
+          <div class="role-card-select" data-email="pgrc@aicte-india.org" data-role="PGRC_OFFICER">
+            <div class="role-card-icon">👩‍⚖️</div>
+            <div class="role-card-details">
+              <h5>Dr. Sunita Rao</h5>
+              <p>Grievance Officer, PGRC</p>
+              <div class="role-clearance-mini">Clearance: Public Grievances</div>
+            </div>
+          </div>
+
+          <div class="role-card-select" data-email="regulation@aicte-india.org" data-role="REGULATION_OFFICER">
+            <div class="role-card-icon">👨‍💻</div>
+            <div class="role-card-details">
+              <h5>Er. Amit Verma</h5>
+              <p>Dy. Director, Regulation</p>
+              <div class="role-clearance-mini">Clearance: Norms & Audits</div>
+            </div>
+          </div>
+
+          <div class="role-card-select" data-email="approval@aicte-india.org" data-role="APPROVAL_OFFICER">
+            <div class="role-card-icon">👩‍💼</div>
+            <div class="role-card-details">
+              <h5>Smt. K. Meenakshi</h5>
+              <p>Asst. Director, Approval</p>
+              <div class="role-clearance-mini">Clearance: Approvals & EVC</div>
+            </div>
+          </div>
+
+          <div class="role-card-select" data-email="principal@apextech.edu.in" data-role="INSTITUTION_NODAL">
+            <div class="role-card-icon">🏛️</div>
+            <div class="role-card-details">
+              <h5>Dr. S. K. Kulkarni</h5>
+              <p>Principal, Institution A</p>
+              <div class="role-clearance-mini">Clearance: College Nodal View</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:1rem; margin:0.75rem 0;">
+          <div style="flex:1; height:1px; background:var(--border-subtle);"></div>
+          <span style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">OR SIGN IN WITH CREDENTIALS</span>
+          <div style="flex:1; height:1px; background:var(--border-subtle);"></div>
+        </div>
+
+        <!-- Custom Login Form -->
+        <form id="customLoginForm" style="display:flex; flex-direction:column; gap:0.85rem;">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+            <div class="form-group">
+              <label>Official Email ID / AICTE Staff ID *</label>
+              <input type="email" class="form-control" id="loginEmailInput" value="admin@aicte-india.org" required>
+            </div>
+            <div class="form-group">
+              <label>Password *</label>
+              <input type="password" class="form-control" id="loginPasswordInput" value="••••••••" required>
+            </div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="display:flex; align-items:center; gap:0.4rem; font-size:0.75rem; color:var(--text-secondary); cursor:pointer;">
+              <input type="checkbox" checked> Remember authorization session
+            </label>
+            <span style="font-size:0.72rem; color:var(--text-muted);">Protected by 256-bit GovCloud Encryption</span>
+          </div>
+
+          <div style="display:flex; justify-content:flex-end; gap:0.75rem; margin-top:0.5rem;">
+            <button type="button" class="btn btn-secondary" data-close-modal>Continue as Guest</button>
+            <button type="submit" class="btn btn-primary" id="btnSubmitLogin">
+              <span>🔐</span> Authenticate & Enter Dashboard
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>

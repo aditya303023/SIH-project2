@@ -38,6 +38,7 @@ public class Main {
         server.createContext("/api/institutions", institutionController);
         server.createContext("/api/stats", statsController);
         server.createContext("/api/audit", statsController);
+        server.createContext("/api/auth", new AuthController());
 
         // Static files frontend
         String frontendDir = "frontend/public";
