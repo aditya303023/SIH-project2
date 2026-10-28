@@ -29,17 +29,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const globalSearchInput = document.getElementById('globalSearchInput');
   const toastContainer = document.getElementById('toastContainer');
 
-  // Modals
+  // Modals & User Dropdown
   const reviewModal = document.getElementById('reviewModal');
   const caseDetailModal = document.getElementById('caseDetailModal');
   const newCaseModal = document.getElementById('newCaseModal');
   const instProfileModal = document.getElementById('instProfileModal');
   const auditModal = document.getElementById('auditModal');
+  const loginModal = document.getElementById('loginModal');
+  const userDropdownMenu = document.getElementById('userDropdownMenu');
+  const btnUserMenu = document.getElementById('btnUserMenu');
 
   // --- Initializer ---
   async function init() {
+    state.currentUser = api.getCurrentUser();
+    renderUserProfile(state.currentUser);
     setupEventListeners();
     await loadDashboardData();
+    applyRoleWorkflow(state.currentUser, false);
   }
 
   // --- Data Fetching ---
@@ -601,9 +607,134 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // --- Authentication & User Role Management ---
+
+  function renderUserProfile(user) {
+    if (!user) return;
+    document.getElementById('navUserAvatar').textContent = user.avatar || '👨‍💼';
+    document.getElementById('navUserName').textContent = user.name;
+    document.getElementById('navUserRole').textContent = user.bureau || 'AICTE Staff';
+
+    document.getElementById('dropUserName').textContent = user.name;
+    document.getElementById('dropUserEmail').textContent = user.email;
+    document.getElementById('dropUserDesignation').textContent = user.designation || 'Authorized Official';
+    document.getElementById('dropUserClearance').textContent = user.clearanceLevel || 'Level 2';
+  }
+
+  function applyRoleWorkflow(user, notify = true) {
+    if (!user) return;
+    renderUserProfile(user);
+
+    if (user.role === 'INSTITUTION_NODAL' && user.institutionId) {
+      // Focus on the specific institution's complaints (Institution A)
+      state.searchQuery = user.institutionId;
+      globalSearchInput.value = user.institutionId;
+      refreshCases();
+      if (notify) {
+        showToast(`Logged in as Institutional Nodal Officer: Viewing cases for ${user.bureau}`, 'info');
+      }
+    } else if (user.role === 'PGRC_OFFICER') {
+      document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+      const chip = document.querySelector('.filter-chip-pgrc');
+      if (chip) chip.classList.add('active');
+      state.activeBureau = 'PGRC';
+      state.searchQuery = '';
+      globalSearchInput.value = '';
+      refreshCases();
+      if (notify) showToast(`Switched to PGRC Workspace: Public Grievance Docket active`, 'info');
+    } else if (user.role === 'REGULATION_OFFICER') {
+      document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+      const chip = document.querySelector('.filter-chip-regulation');
+      if (chip) chip.classList.add('active');
+      state.activeBureau = 'Regulation Bureau';
+      state.searchQuery = '';
+      globalSearchInput.value = '';
+      refreshCases();
+      if (notify) showToast(`Switched to Regulation Workspace: Cadre & Norms compliance active`, 'info');
+    } else if (user.role === 'APPROVAL_OFFICER') {
+      document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+      const chip = document.querySelector('.filter-chip-approval');
+      if (chip) chip.classList.add('active');
+      state.activeBureau = 'Approval Bureau';
+      state.searchQuery = '';
+      globalSearchInput.value = '';
+      refreshCases();
+      if (notify) showToast(`Switched to Approval Bureau Workspace`, 'info');
+    } else {
+      // HQ Executive: show full inter-bureau view
+      document.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
+      const allChip = document.querySelector('.filter-chip[data-bureau="ALL"]');
+      if (allChip) allChip.classList.add('active');
+      state.activeBureau = 'ALL';
+      state.searchQuery = '';
+      globalSearchInput.value = '';
+      refreshCases();
+      if (notify) showToast(`Logged in as AICTE HQ Executive (Full Inter-Bureau Authority)`, 'success');
+    }
+  }
+
+  function openLoginModal() {
+    userDropdownMenu.classList.remove('open');
+    openModal(loginModal);
+  }
+
+  async function handleLogin(email, password) {
+    try {
+      const res = await api.login(email, password);
+      state.currentUser = res.user;
+      closeModal(loginModal);
+      applyRoleWorkflow(res.user, true);
+    } catch (err) {
+      console.error(err);
+      showToast('Authentication failed: ' + err.message, 'error');
+    }
+  }
+
   // --- Event Listeners ---
 
   function setupEventListeners() {
+    // User Profile Widget & Dropdown
+    btnUserMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+      userDropdownMenu.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!userDropdownMenu.contains(e.target) && !btnUserMenu.contains(e.target)) {
+        userDropdownMenu.classList.remove('open');
+      }
+    });
+
+    document.getElementById('btnSwitchAccount').addEventListener('click', () => {
+      openLoginModal();
+    });
+
+    document.getElementById('btnLogout').addEventListener('click', () => {
+      api.logout();
+      showToast('Logged out of AICTE session.', 'info');
+      openLoginModal();
+    });
+
+    // 1-Click Role Switcher inside Login Modal
+    document.querySelectorAll('.role-card-select').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.role-card-select').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        const email = card.dataset.email;
+        document.getElementById('loginEmailInput').value = email;
+        document.getElementById('loginPasswordInput').value = 'aicte2026';
+        handleLogin(email, 'aicte2026');
+      });
+    });
+
+    // Credentials Form Submit
+    document.getElementById('customLoginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmailInput').value.trim();
+      const password = document.getElementById('loginPasswordInput').value;
+      handleLogin(email, password);
+    });
+
     // Bureau Filters
     document.querySelectorAll('.filter-chip').forEach(btn => {
       btn.addEventListener('click', () => {
